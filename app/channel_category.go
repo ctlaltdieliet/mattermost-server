@@ -8,6 +8,7 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/mattermost/mattermost-server/v6/app/request"
 	"github.com/mattermost/mattermost-server/v6/model"
 	"github.com/mattermost/mattermost-server/v6/shared/mlog"
 	"github.com/mattermost/mattermost-server/v6/store"
@@ -22,7 +23,7 @@ func (a *App) createInitialSidebarCategories(userID, teamID string) (*model.Orde
 	return categories, nil
 }
 
-func (a *App) GetSidebarCategories(userID, teamID string) (*model.OrderedSidebarCategories, *model.AppError) {
+func (a *App) GetSidebarCategories(c request.CTX, userID, teamID string) (*model.OrderedSidebarCategories, *model.AppError) {
 	var appErr *model.AppError
 	categories, err := a.Srv().Store.Channel().GetSidebarCategories(userID, teamID)
 	if err == nil && len(categories.Categories) == 0 {
@@ -46,7 +47,7 @@ func (a *App) GetSidebarCategories(userID, teamID string) (*model.OrderedSidebar
 	return categories, nil
 }
 
-func (a *App) GetSidebarCategoryOrder(userID, teamID string) ([]string, *model.AppError) {
+func (a *App) GetSidebarCategoryOrder(c request.CTX, userID, teamID string) ([]string, *model.AppError) {
 	categories, err := a.Srv().Store.Channel().GetSidebarCategoryOrder(userID, teamID)
 	if err != nil {
 		var nfErr *store.ErrNotFound
@@ -61,7 +62,7 @@ func (a *App) GetSidebarCategoryOrder(userID, teamID string) ([]string, *model.A
 	return categories, nil
 }
 
-func (a *App) GetSidebarCategory(categoryId string) (*model.SidebarCategoryWithChannels, *model.AppError) {
+func (a *App) GetSidebarCategory(c request.CTX, categoryId string) (*model.SidebarCategoryWithChannels, *model.AppError) {
 	category, err := a.Srv().Store.Channel().GetSidebarCategory(categoryId)
 	if err != nil {
 		var nfErr *store.ErrNotFound
@@ -76,7 +77,7 @@ func (a *App) GetSidebarCategory(categoryId string) (*model.SidebarCategoryWithC
 	return category, nil
 }
 
-func (a *App) CreateSidebarCategory(userID, teamID string, newCategory *model.SidebarCategoryWithChannels) (*model.SidebarCategoryWithChannels, *model.AppError) {
+func (a *App) CreateSidebarCategory(c request.CTX, userID, teamID string, newCategory *model.SidebarCategoryWithChannels) (*model.SidebarCategoryWithChannels, *model.AppError) {
 	category, err := a.Srv().Store.Channel().CreateSidebarCategory(userID, teamID, newCategory)
 	if err != nil {
 		var nfErr *store.ErrNotFound
@@ -93,7 +94,7 @@ func (a *App) CreateSidebarCategory(userID, teamID string, newCategory *model.Si
 	return category, nil
 }
 
-func (a *App) UpdateSidebarCategoryOrder(userID, teamID string, categoryOrder []string) *model.AppError {
+func (a *App) UpdateSidebarCategoryOrder(c request.CTX, userID, teamID string, categoryOrder []string) *model.AppError {
 	err := a.Srv().Store.Channel().UpdateSidebarCategoryOrder(userID, teamID, categoryOrder)
 	if err != nil {
 		var nfErr *store.ErrNotFound
@@ -113,7 +114,7 @@ func (a *App) UpdateSidebarCategoryOrder(userID, teamID string, categoryOrder []
 	return nil
 }
 
-func (a *App) UpdateSidebarCategories(userID, teamID string, categories []*model.SidebarCategoryWithChannels) ([]*model.SidebarCategoryWithChannels, *model.AppError) {
+func (a *App) UpdateSidebarCategories(c request.CTX, userID, teamID string, categories []*model.SidebarCategoryWithChannels) ([]*model.SidebarCategoryWithChannels, *model.AppError) {
 	updatedCategories, originalCategories, err := a.Srv().Store.Channel().UpdateSidebarCategories(userID, teamID, categories)
 	if err != nil {
 		return nil, model.NewAppError("UpdateSidebarCategories", "app.channel.sidebar_categories.app_error", nil, err.Error(), http.StatusInternalServerError)
@@ -123,19 +124,19 @@ func (a *App) UpdateSidebarCategories(userID, teamID string, categories []*model
 
 	updatedCategoriesJSON, jsonErr := json.Marshal(updatedCategories)
 	if jsonErr != nil {
-		mlog.Warn("Failed to encode original categories to JSON", mlog.Err(jsonErr))
+		c.Logger().Warn("Failed to encode original categories to JSON", mlog.Err(jsonErr))
 	}
 
 	message.Add("updatedCategories", string(updatedCategoriesJSON))
 
 	a.Publish(message)
 
-	a.muteChannelsForUpdatedCategories(userID, updatedCategories, originalCategories)
+	a.muteChannelsForUpdatedCategories(c, userID, updatedCategories, originalCategories)
 
 	return updatedCategories, nil
 }
 
-func (a *App) muteChannelsForUpdatedCategories(userID string, updatedCategories []*model.SidebarCategoryWithChannels, originalCategories []*model.SidebarCategoryWithChannels) {
+func (a *App) muteChannelsForUpdatedCategories(c request.CTX, userID string, updatedCategories []*model.SidebarCategoryWithChannels, originalCategories []*model.SidebarCategoryWithChannels) {
 	var channelsToMute []string
 	var channelsToUnmute []string
 
@@ -185,7 +186,7 @@ func (a *App) muteChannelsForUpdatedCategories(userID string, updatedCategories 
 	if len(channelsToMute) > 0 {
 		_, err := a.setChannelsMuted(channelsToMute, userID, true)
 		if err != nil {
-			mlog.Error(
+			c.Logger().Error(
 				"Failed to mute channels to match category",
 				mlog.String("user_id", userID),
 				mlog.Err(err),
@@ -196,7 +197,7 @@ func (a *App) muteChannelsForUpdatedCategories(userID string, updatedCategories 
 	if len(channelsToUnmute) > 0 {
 		_, err := a.setChannelsMuted(channelsToUnmute, userID, false)
 		if err != nil {
-			mlog.Error(
+			c.Logger().Error(
 				"Failed to unmute channels to match category",
 				mlog.String("user_id", userID),
 				mlog.Err(err),
@@ -240,7 +241,7 @@ func diffChannelsBetweenCategories(updatedCategories []*model.SidebarCategoryWit
 	return channelsDiff
 }
 
-func (a *App) DeleteSidebarCategory(userID, teamID, categoryId string) *model.AppError {
+func (a *App) DeleteSidebarCategory(c request.CTX, userID, teamID, categoryId string) *model.AppError {
 	err := a.Srv().Store.Channel().DeleteSidebarCategory(categoryId)
 	if err != nil {
 		var invErr *store.ErrInvalidInput

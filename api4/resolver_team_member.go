@@ -43,7 +43,7 @@ func getSidebarCategories(c *web.Context, userID, teamID string) ([]*model.Sideb
 		return nil, c.Err
 	}
 
-	categories, appErr := c.App.GetSidebarCategories(userID, teamID)
+	categories, appErr := c.App.GetSidebarCategories(c.AppContext, userID, teamID)
 	if appErr != nil {
 		return nil, appErr
 	}

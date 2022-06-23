@@ -2418,7 +2418,7 @@ func (a *OpenTracingAppLayer) CreateSession(session *model.Session) (*model.Sess
 	return resultVar0, resultVar1
 }
 
-func (a *OpenTracingAppLayer) CreateSidebarCategory(userID string, teamID string, newCategory *model.SidebarCategoryWithChannels) (*model.SidebarCategoryWithChannels, *model.AppError) {
+func (a *OpenTracingAppLayer) CreateSidebarCategory(c request.CTX, userID string, teamID string, newCategory *model.SidebarCategoryWithChannels) (*model.SidebarCategoryWithChannels, *model.AppError) {
 	origCtx := a.ctx
 	span, newCtx := tracing.StartSpanWithParentByContext(a.ctx, "app.CreateSidebarCategory")
 
@@ -2430,7 +2430,7 @@ func (a *OpenTracingAppLayer) CreateSidebarCategory(userID string, teamID string
 	}()
 
 	defer span.Finish()
-	resultVar0, resultVar1 := a.app.CreateSidebarCategory(userID, teamID, newCategory)
+	resultVar0, resultVar1 := a.app.CreateSidebarCategory(c, userID, teamID, newCategory)
 
 	if resultVar1 != nil {
 		span.LogFields(spanlog.Error(resultVar1))
@@ -3418,7 +3418,7 @@ func (a *OpenTracingAppLayer) DeleteSharedChannelRemote(id string) (bool, error)
 	return resultVar0, resultVar1
 }
 
-func (a *OpenTracingAppLayer) DeleteSidebarCategory(userID string, teamID string, categoryId string) *model.AppError {
+func (a *OpenTracingAppLayer) DeleteSidebarCategory(c request.CTX, userID string, teamID string, categoryId string) *model.AppError {
 	origCtx := a.ctx
 	span, newCtx := tracing.StartSpanWithParentByContext(a.ctx, "app.DeleteSidebarCategory")
 
@@ -3430,7 +3430,7 @@ func (a *OpenTracingAppLayer) DeleteSidebarCategory(userID string, teamID string
 	}()
 
 	defer span.Finish()
-	resultVar0 := a.app.DeleteSidebarCategory(userID, teamID, categoryId)
+	resultVar0 := a.app.DeleteSidebarCategory(c, userID, teamID, categoryId)
 
 	if resultVar0 != nil {
 		span.LogFields(spanlog.Error(resultVar0))
@@ -8951,7 +8951,7 @@ func (a *OpenTracingAppLayer) GetSharedChannelsCount(opts model.SharedChannelFil
 	return resultVar0, resultVar1
 }
 
-func (a *OpenTracingAppLayer) GetSidebarCategories(userID string, teamID string) (*model.OrderedSidebarCategories, *model.AppError) {
+func (a *OpenTracingAppLayer) GetSidebarCategories(c request.CTX, userID string, teamID string) (*model.OrderedSidebarCategories, *model.AppError) {
 	origCtx := a.ctx
 	span, newCtx := tracing.StartSpanWithParentByContext(a.ctx, "app.GetSidebarCategories")
 
@@ -8963,7 +8963,7 @@ func (a *OpenTracingAppLayer) GetSidebarCategories(userID string, teamID string)
 	}()
 
 	defer span.Finish()
-	resultVar0, resultVar1 := a.app.GetSidebarCategories(userID, teamID)
+	resultVar0, resultVar1 := a.app.GetSidebarCategories(c, userID, teamID)
 
 	if resultVar1 != nil {
 		span.LogFields(spanlog.Error(resultVar1))
@@ -8973,7 +8973,7 @@ func (a *OpenTracingAppLayer) GetSidebarCategories(userID string, teamID string)
 	return resultVar0, resultVar1
 }
 
-func (a *OpenTracingAppLayer) GetSidebarCategory(categoryId string) (*model.SidebarCategoryWithChannels, *model.AppError) {
+func (a *OpenTracingAppLayer) GetSidebarCategory(c request.CTX, categoryId string) (*model.SidebarCategoryWithChannels, *model.AppError) {
 	origCtx := a.ctx
 	span, newCtx := tracing.StartSpanWithParentByContext(a.ctx, "app.GetSidebarCategory")
 
@@ -8985,7 +8985,7 @@ func (a *OpenTracingAppLayer) GetSidebarCategory(categoryId string) (*model.Side
 	}()
 
 	defer span.Finish()
-	resultVar0, resultVar1 := a.app.GetSidebarCategory(categoryId)
+	resultVar0, resultVar1 := a.app.GetSidebarCategory(c, categoryId)
 
 	if resultVar1 != nil {
 		span.LogFields(spanlog.Error(resultVar1))
@@ -8995,7 +8995,7 @@ func (a *OpenTracingAppLayer) GetSidebarCategory(categoryId string) (*model.Side
 	return resultVar0, resultVar1
 }
 
-func (a *OpenTracingAppLayer) GetSidebarCategoryOrder(userID string, teamID string) ([]string, *model.AppError) {
+func (a *OpenTracingAppLayer) GetSidebarCategoryOrder(c request.CTX, userID string, teamID string) ([]string, *model.AppError) {
 	origCtx := a.ctx
 	span, newCtx := tracing.StartSpanWithParentByContext(a.ctx, "app.GetSidebarCategoryOrder")
 
@@ -9007,7 +9007,7 @@ func (a *OpenTracingAppLayer) GetSidebarCategoryOrder(userID string, teamID stri
 	}()
 
 	defer span.Finish()
-	resultVar0, resultVar1 := a.app.GetSidebarCategoryOrder(userID, teamID)
+	resultVar0, resultVar1 := a.app.GetSidebarCategoryOrder(c, userID, teamID)
 
 	if resultVar1 != nil {
 		span.LogFields(spanlog.Error(resultVar1))
@@ -15094,7 +15094,7 @@ func (a *OpenTracingAppLayer) SessionHasPermissionToAny(session model.Session, p
 	return resultVar0
 }
 
-func (a *OpenTracingAppLayer) SessionHasPermissionToCategory(session model.Session, userID string, teamID string, categoryId string) bool {
+func (a *OpenTracingAppLayer) SessionHasPermissionToCategory(c request.CTX, session model.Session, userID string, teamID string, categoryId string) bool {
 	origCtx := a.ctx
 	span, newCtx := tracing.StartSpanWithParentByContext(a.ctx, "app.SessionHasPermissionToCategory")
 
@@ -15106,7 +15106,7 @@ func (a *OpenTracingAppLayer) SessionHasPermissionToCategory(session model.Sessi
 	}()
 
 	defer span.Finish()
-	resultVar0 := a.app.SessionHasPermissionToCategory(session, userID, teamID, categoryId)
+	resultVar0 := a.app.SessionHasPermissionToCategory(c, session, userID, teamID, categoryId)
 
 	return resultVar0
 }
@@ -17118,7 +17118,7 @@ func (a *OpenTracingAppLayer) UpdateSharedChannelRemoteCursor(id string, cursor 
 	return resultVar0
 }
 
-func (a *OpenTracingAppLayer) UpdateSidebarCategories(userID string, teamID string, categories []*model.SidebarCategoryWithChannels) ([]*model.SidebarCategoryWithChannels, *model.AppError) {
+func (a *OpenTracingAppLayer) UpdateSidebarCategories(c request.CTX, userID string, teamID string, categories []*model.SidebarCategoryWithChannels) ([]*model.SidebarCategoryWithChannels, *model.AppError) {
 	origCtx := a.ctx
 	span, newCtx := tracing.StartSpanWithParentByContext(a.ctx, "app.UpdateSidebarCategories")
 
@@ -17130,7 +17130,7 @@ func (a *OpenTracingAppLayer) UpdateSidebarCategories(userID string, teamID stri
 	}()
 
 	defer span.Finish()
-	resultVar0, resultVar1 := a.app.UpdateSidebarCategories(userID, teamID, categories)
+	resultVar0, resultVar1 := a.app.UpdateSidebarCategories(c, userID, teamID, categories)
 
 	if resultVar1 != nil {
 		span.LogFields(spanlog.Error(resultVar1))
@@ -17140,7 +17140,7 @@ func (a *OpenTracingAppLayer) UpdateSidebarCategories(userID string, teamID stri
 	return resultVar0, resultVar1
 }
 
-func (a *OpenTracingAppLayer) UpdateSidebarCategoryOrder(userID string, teamID string, categoryOrder []string) *model.AppError {
+func (a *OpenTracingAppLayer) UpdateSidebarCategoryOrder(c request.CTX, userID string, teamID string, categoryOrder []string) *model.AppError {
 	origCtx := a.ctx
 	span, newCtx := tracing.StartSpanWithParentByContext(a.ctx, "app.UpdateSidebarCategoryOrder")
 
@@ -17152,7 +17152,7 @@ func (a *OpenTracingAppLayer) UpdateSidebarCategoryOrder(userID string, teamID s
 	}()
 
 	defer span.Finish()
-	resultVar0 := a.app.UpdateSidebarCategoryOrder(userID, teamID, categoryOrder)
+	resultVar0 := a.app.UpdateSidebarCategoryOrder(c, userID, teamID, categoryOrder)
 
 	if resultVar0 != nil {
 		span.LogFields(spanlog.Error(resultVar0))
