@@ -184,7 +184,7 @@ func (a *App) muteChannelsForUpdatedCategories(c request.CTX, userID string, upd
 	}
 
 	if len(channelsToMute) > 0 {
-		_, err := a.setChannelsMuted(channelsToMute, userID, true)
+		_, err := a.setChannelsMuted(c, channelsToMute, userID, true)
 		if err != nil {
 			c.Logger().Error(
 				"Failed to mute channels to match category",
@@ -195,7 +195,7 @@ func (a *App) muteChannelsForUpdatedCategories(c request.CTX, userID string, upd
 	}
 
 	if len(channelsToUnmute) > 0 {
-		_, err := a.setChannelsMuted(channelsToUnmute, userID, false)
+		_, err := a.setChannelsMuted(c, channelsToUnmute, userID, false)
 		if err != nil {
 			c.Logger().Error(
 				"Failed to unmute channels to match category",

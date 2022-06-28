@@ -35,14 +35,14 @@ func TestCreateUploadSession(t *testing.T) {
 		maxFileSize := *th.App.Config().FileSettings.MaxFileSize
 		th.App.UpdateConfig(func(cfg *model.Config) { *cfg.FileSettings.MaxFileSize = us.FileSize - 1 })
 		defer th.App.UpdateConfig(func(cfg *model.Config) { *cfg.FileSettings.MaxFileSize = maxFileSize })
-		u, err := th.App.CreateUploadSession(us)
+		u, err := th.App.CreateUploadSession(th.Context, us)
 		require.NotNil(t, err)
 		require.Equal(t, "app.upload.create.upload_too_large.app_error", err.Id)
 		require.Nil(t, u)
 	})
 
 	t.Run("invalid Id", func(t *testing.T) {
-		u, err := th.App.CreateUploadSession(us)
+		u, err := th.App.CreateUploadSession(th.Context, us)
 		require.NotNil(t, err)
 		require.Equal(t, "model.upload_session.is_valid.id.app_error", err.Id)
 		require.Nil(t, u)
@@ -51,7 +51,7 @@ func TestCreateUploadSession(t *testing.T) {
 	t.Run("invalid UserId", func(t *testing.T) {
 		us.Id = model.NewId()
 		us.UserId = ""
-		u, err := th.App.CreateUploadSession(us)
+		u, err := th.App.CreateUploadSession(th.Context, us)
 		require.NotNil(t, err)
 		require.Equal(t, "model.upload_session.is_valid.user_id.app_error", err.Id)
 		require.Nil(t, u)
@@ -60,7 +60,7 @@ func TestCreateUploadSession(t *testing.T) {
 	t.Run("invalid ChannelId", func(t *testing.T) {
 		us.UserId = th.BasicUser.Id
 		us.ChannelId = ""
-		u, err := th.App.CreateUploadSession(us)
+		u, err := th.App.CreateUploadSession(th.Context, us)
 		require.NotNil(t, err)
 		require.Equal(t, "model.upload_session.is_valid.channel_id.app_error", err.Id)
 		require.Nil(t, u)
@@ -68,17 +68,17 @@ func TestCreateUploadSession(t *testing.T) {
 
 	t.Run("non-existing channel", func(t *testing.T) {
 		us.ChannelId = model.NewId()
-		u, err := th.App.CreateUploadSession(us)
+		u, err := th.App.CreateUploadSession(th.Context, us)
 		require.NotNil(t, err)
 		require.Equal(t, "app.upload.create.incorrect_channel_id.app_error", err.Id)
 		require.Nil(t, u)
 	})
 
 	t.Run("deleted channel", func(t *testing.T) {
-		ch := th.CreateChannel(th.BasicTeam)
+		ch := th.CreateChannel(th.Context, th.BasicTeam)
 		th.App.DeleteChannel(th.Context, ch, th.BasicUser.Id)
 		us.ChannelId = ch.Id
-		u, err := th.App.CreateUploadSession(us)
+		u, err := th.App.CreateUploadSession(th.Context, us)
 		require.NotNil(t, err)
 		require.Equal(t, "app.upload.create.cannot_upload_to_deleted_channel.app_error", err.Id)
 		require.Nil(t, u)
@@ -86,7 +86,7 @@ func TestCreateUploadSession(t *testing.T) {
 
 	t.Run("success", func(t *testing.T) {
 		us.ChannelId = th.BasicChannel.Id
-		u, err := th.App.CreateUploadSession(us)
+		u, err := th.App.CreateUploadSession(th.Context, us)
 		require.Nil(t, err)
 		require.NotEmpty(t, u)
 	})
@@ -105,7 +105,7 @@ func TestUploadData(t *testing.T) {
 		FileSize:  8 * 1024 * 1024,
 	}
 
-	us, uploadSessionAppErr := th.App.CreateUploadSession(us)
+	us, uploadSessionAppErr := th.App.CreateUploadSession(th.Context, us)
 	require.Nil(t, uploadSessionAppErr)
 	require.NotEmpty(t, us)
 
@@ -176,7 +176,7 @@ func TestUploadData(t *testing.T) {
 	t.Run("all at once success", func(t *testing.T) {
 		us.Id = model.NewId()
 		var appErr *model.AppError
-		us, appErr = th.App.CreateUploadSession(us)
+		us, appErr = th.App.CreateUploadSession(th.Context, us)
 		require.Nil(t, appErr)
 		require.NotEmpty(t, us)
 
@@ -193,7 +193,7 @@ func TestUploadData(t *testing.T) {
 		us.Id = model.NewId()
 		us.FileSize = 1024 * 1024
 		var appErr *model.AppError
-		us, appErr = th.App.CreateUploadSession(us)
+		us, appErr = th.App.CreateUploadSession(th.Context, us)
 		require.Nil(t, appErr)
 		require.NotEmpty(t, us)
 
@@ -220,7 +220,7 @@ func TestUploadData(t *testing.T) {
 		us.Filename = "test.png"
 		us.FileSize = int64(len(data))
 		var appErr *model.AppError
-		us, appErr = th.App.CreateUploadSession(us)
+		us, appErr = th.App.CreateUploadSession(th.Context, us)
 		require.Nil(t, appErr)
 		require.NotEmpty(t, us)
 
@@ -248,7 +248,7 @@ func TestUploadDataConcurrent(t *testing.T) {
 	}
 
 	var appErr *model.AppError
-	us, appErr = th.App.CreateUploadSession(us)
+	us, appErr = th.App.CreateUploadSession(th.Context, us)
 	require.Nil(t, appErr)
 	require.NotEmpty(t, us)
 

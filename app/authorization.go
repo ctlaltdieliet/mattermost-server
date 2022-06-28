@@ -58,7 +58,7 @@ func (a *App) SessionHasPermissionToTeam(session model.Session, teamID string, p
 	return a.RolesGrantPermission(session.GetUserRoles(), permission.Id)
 }
 
-func (a *App) SessionHasPermissionToChannel(session model.Session, channelID string, permission *model.Permission) bool {
+func (a *App) SessionHasPermissionToChannel(c request.CTX, session model.Session, channelID string, permission *model.Permission) bool {
 	if channelID == "" {
 		return false
 	}
@@ -75,7 +75,7 @@ func (a *App) SessionHasPermissionToChannel(session model.Session, channelID str
 		}
 	}
 
-	channel, appErr := a.GetChannel(channelID)
+	channel, appErr := a.GetChannel(c, channelID)
 	if appErr != nil && appErr.StatusCode == http.StatusNotFound {
 		return false
 	}
@@ -193,7 +193,7 @@ func (a *App) HasPermissionToTeam(askingUserId string, teamID string, permission
 	return a.HasPermissionTo(askingUserId, permission)
 }
 
-func (a *App) HasPermissionToChannel(askingUserId string, channelID string, permission *model.Permission) bool {
+func (a *App) HasPermissionToChannel(c request.CTX, askingUserId string, channelID string, permission *model.Permission) bool {
 	if channelID == "" || askingUserId == "" {
 		return false
 	}
@@ -207,7 +207,7 @@ func (a *App) HasPermissionToChannel(askingUserId string, channelID string, perm
 	}
 
 	var channel *model.Channel
-	channel, err = a.GetChannel(channelID)
+	channel, err = a.GetChannel(c, channelID)
 	if err == nil {
 		return a.HasPermissionToTeam(askingUserId, channel.TeamId, permission)
 	}
@@ -301,6 +301,6 @@ func (a *App) SessionHasPermissionToManageBot(session model.Session, botUserId s
 	return nil
 }
 
-func (a *App) HasPermissionToReadChannel(userID string, channel *model.Channel) bool {
-	return a.HasPermissionToChannel(userID, channel.Id, model.PermissionReadChannel) || (channel.Type == model.ChannelTypeOpen && a.HasPermissionToTeam(userID, channel.TeamId, model.PermissionReadPublicChannel))
+func (a *App) HasPermissionToReadChannel(c request.CTX, userID string, channel *model.Channel) bool {
+	return a.HasPermissionToChannel(c, userID, channel.Id, model.PermissionReadChannel) || (channel.Type == model.ChannelTypeOpen && a.HasPermissionToTeam(userID, channel.TeamId, model.PermissionReadPublicChannel))
 }

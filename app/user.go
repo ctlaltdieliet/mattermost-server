@@ -2451,7 +2451,7 @@ func (a *App) UpdateThreadFollowForUser(userID, teamID, threadID string, state b
 	return nil
 }
 
-func (a *App) UpdateThreadFollowForUserFromChannelAdd(userID, teamID, threadID string) *model.AppError {
+func (a *App) UpdateThreadFollowForUserFromChannelAdd(c request.CTX, userID, teamID, threadID string) *model.AppError {
 	opts := store.ThreadMembershipOpts{
 		Following:             true,
 		IncrementMentions:     false,
@@ -2472,7 +2472,7 @@ func (a *App) UpdateThreadFollowForUserFromChannelAdd(userID, teamID, threadID s
 	if appErr != nil {
 		return appErr
 	}
-	tm.UnreadMentions, appErr = a.countThreadMentions(user, post, teamID, post.CreateAt-1)
+	tm.UnreadMentions, appErr = a.countThreadMentions(c, user, post, teamID, post.CreateAt-1)
 	if appErr != nil {
 		return appErr
 	}
@@ -2493,7 +2493,7 @@ func (a *App) UpdateThreadFollowForUserFromChannelAdd(userID, teamID, threadID s
 	}
 	a.sanitizeProfiles(userThread.Participants, false)
 	userThread.Post.SanitizeProps()
-	sanitizedPost, appErr := a.SanitizePostMetadataForUser(userThread.Post, userID)
+	sanitizedPost, appErr := a.SanitizePostMetadataForUser(c, userThread.Post, userID)
 	if appErr != nil {
 		return appErr
 	}
@@ -2511,7 +2511,7 @@ func (a *App) UpdateThreadFollowForUserFromChannelAdd(userID, teamID, threadID s
 	return nil
 }
 
-func (a *App) UpdateThreadReadForUserByPost(currentSessionId, userID, teamID, threadID, postID string) (*model.ThreadResponse, *model.AppError) {
+func (a *App) UpdateThreadReadForUserByPost(c request.CTX, currentSessionId, userID, teamID, threadID, postID string) (*model.ThreadResponse, *model.AppError) {
 	post, err := a.GetSinglePost(postID, false)
 	if err != nil {
 		return nil, err
@@ -2521,10 +2521,10 @@ func (a *App) UpdateThreadReadForUserByPost(currentSessionId, userID, teamID, th
 		return nil, model.NewAppError("UpdateThreadReadForUser", "app.user.update_thread_read_for_user_by_post.app_error", nil, "", http.StatusBadRequest)
 	}
 
-	return a.UpdateThreadReadForUser(currentSessionId, userID, teamID, threadID, post.CreateAt-1)
+	return a.UpdateThreadReadForUser(c, currentSessionId, userID, teamID, threadID, post.CreateAt-1)
 }
 
-func (a *App) UpdateThreadReadForUser(currentSessionId, userID, teamID, threadID string, timestamp int64) (*model.ThreadResponse, *model.AppError) {
+func (a *App) UpdateThreadReadForUser(c request.CTX, currentSessionId, userID, teamID, threadID string, timestamp int64) (*model.ThreadResponse, *model.AppError) {
 	user, err := a.GetUser(userID)
 	if err != nil {
 		return nil, err
@@ -2549,7 +2549,7 @@ func (a *App) UpdateThreadReadForUser(currentSessionId, userID, teamID, threadID
 	if err != nil {
 		return nil, err
 	}
-	membership.UnreadMentions, err = a.countThreadMentions(user, post, teamID, timestamp)
+	membership.UnreadMentions, err = a.countThreadMentions(c, user, post, teamID, timestamp)
 	if err != nil {
 		return nil, err
 	}

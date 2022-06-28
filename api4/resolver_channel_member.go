@@ -45,12 +45,12 @@ func (cm *channelMember) Channel(ctx context.Context) (*channel, error) {
 
 	if channel.Type == model.ChannelTypeOpen {
 		if !c.App.SessionHasPermissionToTeam(*c.AppContext.Session(), channel.TeamId, model.PermissionReadPublicChannel) &&
-			!c.App.SessionHasPermissionToChannel(*c.AppContext.Session(), cm.ChannelId, model.PermissionReadChannel) {
+			!c.App.SessionHasPermissionToChannel(c.AppContext, *c.AppContext.Session(), cm.ChannelId, model.PermissionReadChannel) {
 			c.SetPermissionError(model.PermissionReadPublicChannel)
 			return nil, c.Err
 		}
 	} else {
-		if !c.App.SessionHasPermissionToChannel(*c.AppContext.Session(), cm.ChannelId, model.PermissionReadChannel) {
+		if !c.App.SessionHasPermissionToChannel(c.AppContext, *c.AppContext.Session(), cm.ChannelId, model.PermissionReadChannel) {
 			c.SetPermissionError(model.PermissionReadChannel)
 			return nil, c.Err
 		}
@@ -86,7 +86,7 @@ func graphQLChannelsLoader(ctx context.Context, keys dataloader.Keys) []*dataloa
 }
 
 func getGraphQLChannels(c *web.Context, channelIDs []string) ([]*channel, error) {
-	channels, appErr := c.App.GetChannels(channelIDs)
+	channels, appErr := c.App.GetChannels(c.AppContext, channelIDs)
 	if appErr != nil {
 		return nil, appErr
 	}
