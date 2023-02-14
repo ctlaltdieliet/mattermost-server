@@ -6886,8 +6886,6 @@
   {
     "id": "Boards",
     "translation": "Дошки"
-<<<<<<< HEAD
-=======
   },
   {
     "id": "api.command_remote.invite.help",
@@ -10004,6 +10002,5 @@
   {
     "id": "api.command_share.remote_already_invited",
     "translation": ""
->>>>>>> 31d6c0edb (Added translation using Weblate (Vietnamese))
   }
 ]
