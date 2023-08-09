@@ -9644,6 +9644,12 @@
     "translation": "CWS 服务器删除工作区时失败。"
   },
   {
+    "id": "app.user.digest.tasks.num_assigned_due_until_today",
+    "translation": {
+      "other": "您有 {{.Count}} 个任务现在已经逾期："
+    }
+  },
+  {
     "id": "app.oauth.remove_auth_data_by_client_id.app_error",
     "translation": "不能删除oauth认证信息。"
   },

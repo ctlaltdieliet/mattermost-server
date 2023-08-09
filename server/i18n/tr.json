@@ -9679,6 +9679,10 @@
     "translation": "Bir lisans yüklenirken bayt değeri geçersiz."
   },
   {
+    "id": "app.user.new_run.intro",
+    "translation": "**Sahibi** {{.Username}}"
+  },
+  {
     "id": "api.server.cws.subscribe_to_newsletter.app_error",
     "translation": "Müşteri site sunucusu duyurulara abone olamadı."
   },

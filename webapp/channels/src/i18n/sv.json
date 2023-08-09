@@ -3650,6 +3650,8 @@
   "inProduct_notices.adminOnlyMessage": "Visas endast för administratörer",
   "incoming_webhooks.header": "Inkommande webhooks",
   "input.clear": "Rensa",
+  "insights.newMembers.member": "Medlem i teamet",
+  "insights.topPlaybooks.myTitle": "Mina bästa Playbooks",
   "installed_command.header": "Slash-kommandon",
   "installed_commands.add": "Lägg till slash-kommandon",
   "installed_commands.delete.confirm": "Den här åtgärden kommer radera slash-kommandot och skada eventuella integrationer som använder kommandot. Är du säker på att du vill radera?",
