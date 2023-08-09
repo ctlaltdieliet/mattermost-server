@@ -3204,6 +3204,10 @@
   "group_member_list.sendMessageTooltip": "ارسال پیام",
   "inProduct_notices.adminOnlyMessage": "فقط برای مدیران قابل مشاهده است",
   "input.clear": "پاک کردن",
+<<<<<<< HEAD
+=======
+  "insights.newMembers.sayHello": "سلام کن",
+>>>>>>> d88e1e665 (Update translation files)
   "insights.topPlaybooks.title": "برترین اجرانامه‌ها",
   "installed_command.header": "دستورات اسلش",
   "installed_commands.add": "دستور اسلش را اضافه کنید",

@@ -3355,6 +3355,10 @@
   "group_list_modal.removeGroupButton": "Csoport eltávolítása",
   "inProduct_notices.adminOnlyMessage": "Csak az adminisztrátorok számára látható",
   "input.clear": "Törlés",
+<<<<<<< HEAD
+=======
+  "insights.topBoards.title": "Vezető táblák",
+>>>>>>> d88e1e665 (Update translation files)
   "insights.topReactions.timesUsed": "Használat száma",
   "installed_command.header": "Perjel parancsok",
   "installed_commands.add": "Perjel parancs hozzáadása",

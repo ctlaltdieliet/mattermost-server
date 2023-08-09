@@ -9671,6 +9671,16 @@
     "translation": "Invalid value for bytes when uploading a licence."
   },
   {
+<<<<<<< HEAD
+=======
+    "id": "app.user.digest.tasks.num_assigned",
+    "translation": {
+      "one": "You have {{.Count}} assigned task:",
+      "other": "You have {{.Count}} total assigned tasks:"
+    }
+  },
+  {
+>>>>>>> d88e1e665 (Update translation files)
     "id": "app.oauth.remove_auth_data_by_client_id.app_error",
     "translation": "Unable to remove OAuth data."
   },

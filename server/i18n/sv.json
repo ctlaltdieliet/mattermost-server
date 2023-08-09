@@ -9675,6 +9675,13 @@
     "translation": "Kunde inte rensa oauth-information."
   },
   {
+    "id": "app.user.digest.tasks.num_assigned",
+    "translation": {
+      "one": "Du har {{.Count}} tilldelad uppgift:",
+      "other": "Du har {{.Count}} tilldelade uppgifter:"
+    }
+  },
+  {
     "id": "model.license_record.is_valid.bytes.app_error",
     "translation": "Felaktigt värde för bytes licensen laddas upp."
   },
