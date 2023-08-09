@@ -3650,8 +3650,6 @@
   "inProduct_notices.adminOnlyMessage": "Nur für Administratoren sichtbar",
   "incoming_webhooks.header": "Eingehende Webhooks",
   "input.clear": "Leeren",
-<<<<<<< HEAD
-=======
   "insights.accessModal.titleAdminPostTrial": "Upgrade für den Zugang zu Team Insights",
   "insights.leastActiveChannels.copyLink": "Link kopieren",
   "insights.leastActiveChannels.mySubTitle": "Meine Kanäle mit den wenigsten Nachrichten",
@@ -3662,7 +3660,7 @@
   "insights.topPlaybooks.myTitle": "Meine Top-Playbooks",
   "insights.topReactions.mySubTitle": "Reaktionen, die ich am meisten verwendet habe",
   "insights.topThreads.mySubTitle": "Aktivste Unterhaltungen, denen ich folge",
->>>>>>> c5891c594 (Translated using Weblate (German))
+  "insights.topPlaybooks.myTitle": "Meine Top-Playbooks",
   "installed_command.header": "Slash-Befehle",
   "installed_commands.add": "Slash-Befehl hinzufügen",
   "installed_commands.delete.confirm": "Diese Aktion wird den Slash-Befehl permanent löschen und wird jede Integration, die ihn verwendet, stoppen. Bist du sicher, dass du ihn löschen möchtest?",
@@ -4296,10 +4294,7 @@
   "plan.self_serve": "Selbst gehosted",
   "pluggable.errorOccurred": "Es ist ein Fehler im {pluginId} Plugin aufgetreten.",
   "pluggable.errorRefresh": "Aktualisieren?",
-<<<<<<< HEAD
-=======
   "pluggable_rhs.tourtip.playbooks.title": "Greife auf deine {count} verknüpften {num, plural, one {Playbook} other {Playbooks}} zu.",
->>>>>>> c5891c594 (Translated using Weblate (German))
   "post.ariaLabel.attachment": ", ein Anhang",
   "post.ariaLabel.attachmentMultiple": ", {attachmentCount} Anhänge",
   "post.ariaLabel.message": "Am {date} um {time} schrieb {authorName}: {message}",
@@ -5618,10 +5613,6 @@
   "widgets.users_emails_input.loading": "Laden",
   "widgets.users_emails_input.no_user_found_matching": "Es wurde niemand gefunden, der **{text}** entspricht. Gib die E-Mail-Adresse ein, um einzuladen.",
   "widgets.users_emails_input.valid_email": "**{email}** hinzufügen",
-  "work_templates.customize.name_label_channels_playbooks": "Benenne deinen Kanal und Playbook",
-  "work_templates.menu.quick_use": "Schneller Einsatz",
-  "work_templates.preview.integrations.admin_install.multiple_plugin": "Integrationen werden erst dann hinzugefügt, wenn der Administrator sie installiert hat.",
-  "work_templates.preview.modal_title": "Vorschau {useCase}",
   "workspace_limits.archived_file.archived": "DIese Datei ist archiviert",
   "workspace_limits.archived_file.archived_compact": "(archiviert)",
   "workspace_limits.archived_file.tooltip_description": "Dein Arbeitsbereich hat das Dateispeicherlimit von {storageLimit} überschritten. Um dies nochmal anzuzeigen, aktualisiere auf einen kostenpflichtigen Plan",

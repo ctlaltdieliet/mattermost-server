@@ -9675,6 +9675,13 @@
     "translation": "Oauth-Daten können nicht entfernt werden."
   },
   {
+    "id": "app.user.digest.tasks.num_assigned",
+    "translation": {
+      "one": "Du hast eine zugewiesene Aufgabe:",
+      "other": "Du hast {{.Count}} zugewiesene Aufgaben:"
+    }
+  },
+  {
     "id": "api.license.request-trial.bad-request.business-email",
     "translation": "Ungültige geschäftliche E-Mail für den Test"
   },
