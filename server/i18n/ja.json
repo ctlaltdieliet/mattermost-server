@@ -9872,9 +9872,5 @@
   {
     "id": "app.save_config.plugin_hook_error",
     "translation": "設定保存時のplugin hookを実行する際にエラーが発生しました。"
-  },
-  {
-    "id": "api.command_exportlink.driver.app_error",
-    "translation": "ファイル保存先ドライバはリンク生成をサポートしていません。"
   }
 ]
