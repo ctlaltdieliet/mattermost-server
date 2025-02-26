@@ -501,7 +501,7 @@ func (us SqlUserStore) GetMfaUsedTimestamps(userId string) ([]int, error) {
 func (us SqlUserStore) GetMany(ctx context.Context, ids []string) ([]*model.User, error) {
 	query := us.usersQuery.Where(sq.Eq{"Id": ids})
 	users := []*model.User{}
-	if err := us.SqlStore.DBXFromContext(ctx).SelectBuilder(&users, query); err != nil {
+	if err := us.SqlStore.DBXFromContext(ctx).SelectBuilderCtx(ctx, &users, query); err != nil {
 		return nil, errors.Wrap(err, "users_get_many_select")
 	}
 
@@ -2037,10 +2037,10 @@ func applyViewRestrictionsFilter(query sq.SelectBuilder, restrictions *model.Vie
 		channels[i] = v
 	}
 	resultQuery := query
-	if restrictions.Teams != nil && len(restrictions.Teams) > 0 {
+	if len(restrictions.Teams) > 0 {
 		resultQuery = resultQuery.Join(fmt.Sprintf("TeamMembers rtm ON ( rtm.UserId = Users.Id AND rtm.DeleteAt = 0 AND rtm.TeamId IN (%s))", sq.Placeholders(len(teams))), teams...)
 	}
-	if restrictions.Channels != nil && len(restrictions.Channels) > 0 {
+	if len(restrictions.Channels) > 0 {
 		resultQuery = resultQuery.Join(fmt.Sprintf("ChannelMembers rcm ON ( rcm.UserId = Users.Id AND rcm.ChannelId IN (%s))", sq.Placeholders(len(channels))), channels...)
 	}
 

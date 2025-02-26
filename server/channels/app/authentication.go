@@ -6,12 +6,14 @@ package app
 import (
 	"errors"
 	"net/http"
+	"path"
 	"strings"
 
 	"github.com/mattermost/mattermost/server/public/model"
 	"github.com/mattermost/mattermost/server/public/shared/mlog"
 	"github.com/mattermost/mattermost/server/public/shared/request"
 	"github.com/mattermost/mattermost/server/v8/channels/app/users"
+	"github.com/mattermost/mattermost/server/v8/channels/utils"
 	"github.com/mattermost/mattermost/server/v8/platform/shared/mfa"
 )
 
@@ -233,8 +235,57 @@ func (a *App) CheckUserMfa(rctx request.CTX, user *model.User, token string) *mo
 	return nil
 }
 
-func checkUserLoginAttempts(user *model.User, max int) *model.AppError {
-	if user.FailedAttempts >= max {
+func (a *App) MFARequired(rctx request.CTX) *model.AppError {
+	if license := a.Channels().License(); license == nil || !*license.Features.MFA || !*a.Config().ServiceSettings.EnableMultifactorAuthentication || !*a.Config().ServiceSettings.EnforceMultifactorAuthentication {
+		return nil
+	}
+
+	session := rctx.Session()
+	// Session cannot be nil or empty if MFA is to be enforced.
+	if session == nil || session.Id == "" {
+		return model.NewAppError("MfaRequired", "api.context.get_session.app_error", nil, "", http.StatusUnauthorized)
+	}
+
+	// OAuth integrations are excepted
+	if session.IsOAuth {
+		return nil
+	}
+
+	user, err := a.GetUser(session.UserId)
+	if err != nil {
+		return model.NewAppError("MfaRequired", "api.context.get_user.app_error", nil, "", http.StatusUnauthorized).Wrap(err)
+	}
+
+	if user.IsGuest() && !*a.Config().GuestAccountsSettings.EnforceMultifactorAuthentication {
+		return nil
+	}
+	// Only required for email and ldap accounts
+	if user.AuthService != "" &&
+		user.AuthService != model.UserAuthServiceEmail &&
+		user.AuthService != model.UserAuthServiceLdap {
+		return nil
+	}
+
+	// Special case to let user get themself
+	subpath, _ := utils.GetSubpathFromConfig(a.Config())
+	if rctx.Path() == path.Join(subpath, "/api/v4/users/me") {
+		return nil
+	}
+
+	// Bots are exempt
+	if user.IsBot {
+		return nil
+	}
+
+	if !user.MfaActive {
+		return model.NewAppError("MfaRequired", "api.context.mfa_required.app_error", nil, "", http.StatusForbidden)
+	}
+
+	return nil
+}
+
+func checkUserLoginAttempts(user *model.User, maxAttempts int) *model.AppError {
+	if user.FailedAttempts >= maxAttempts {
 		return model.NewAppError("checkUserLoginAttempts", "api.user.check_user_login_attempts.too_many.app_error", nil, "user_id="+user.Id, http.StatusUnauthorized)
 	}
 
