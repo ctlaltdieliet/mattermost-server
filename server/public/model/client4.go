@@ -574,6 +574,10 @@ func (c *Client4) exportRoute(name string) string {
 	return fmt.Sprintf(c.exportsRoute()+"/%v", name)
 }
 
+func (c *Client4) importRoute(name string) string {
+	return fmt.Sprintf(c.importsRoute()+"/%v", name)
+}
+
 func (c *Client4) remoteClusterRoute() string {
 	return "/remotecluster"
 }
@@ -627,11 +631,11 @@ func (c *Client4) accessControlPoliciesRoute() string {
 }
 
 func (c *Client4) celRoute() string {
-	return "/access_control_policies/cel"
+	return c.accessControlPoliciesRoute() + "/cel"
 }
 
 func (c *Client4) accessControlPolicyRoute(policyID string) string {
-	return fmt.Sprintf(c.accessControlPoliciesRoute()+"/%v", policyID)
+	return fmt.Sprintf(c.accessControlPoliciesRoute()+"/%v", url.PathEscape(policyID))
 }
 
 func (c *Client4) GetServerLimits(ctx context.Context) (*ServerLimits, *Response, error) {
@@ -2934,7 +2938,6 @@ func (c *Client4) InviteGuestsToTeam(ctx context.Context, teamId string, userEma
 // InviteUsersToTeam invite users by email to the team.
 func (c *Client4) InviteUsersToTeamGracefully(ctx context.Context, teamId string, userEmails []string) ([]*EmailInviteWithError, *Response, error) {
 	r, err := c.DoAPIPost(ctx, c.teamRoute(teamId)+"/invite/email?graceful="+c.boolString(true), ArrayToJSON(userEmails))
-
 	if err != nil {
 		return nil, BuildResponse(r), err
 	}
@@ -5759,16 +5762,23 @@ func (c *Client4) GetClusterStatus(ctx context.Context) ([]*ClusterInfo, *Respon
 
 // LDAP Section
 
-// SyncLdap will force a sync with the configured LDAP server.
-// If includeRemovedMembers is true, then group members who left or were removed from a
+// SyncLdap starts a run of the LDAP sync job.
+//
+// If reAddRemovedMembers is true, then group members who left or were removed from a
 // synced team/channel will be re-joined; otherwise, they will be excluded.
-func (c *Client4) SyncLdap(ctx context.Context, includeRemovedMembers bool) (*Response, error) {
-	reqBody, err := json.Marshal(map[string]any{
-		"include_removed_members": includeRemovedMembers,
-	})
+//
+// The ReAddRemovedMembers option is deprecated. Use LdapSettings.ReAddRemovedMembers instead.
+func (c *Client4) SyncLdap(ctx context.Context, reAddRemovedMembers *bool) (*Response, error) {
+	data := map[string]any{}
+	if reAddRemovedMembers != nil {
+		data["include_removed_members"] = *reAddRemovedMembers
+	}
+
+	reqBody, err := json.Marshal(data)
 	if err != nil {
 		return nil, NewAppError("SyncLdap", "api.marshal_error", nil, "", http.StatusInternalServerError).Wrap(err)
 	}
+
 	r, err := c.DoAPIPostBytes(ctx, c.ldapRoute()+"/sync", reqBody)
 	if err != nil {
 		return BuildResponse(r), err
@@ -8791,6 +8801,15 @@ func (c *Client4) ListImports(ctx context.Context) ([]string, *Response, error) 
 	return c.ArrayFromJSON(r.Body), BuildResponse(r), nil
 }
 
+func (c *Client4) DeleteImport(ctx context.Context, name string) (*Response, error) {
+	r, err := c.DoAPIDelete(ctx, c.importRoute(name))
+	if err != nil {
+		return BuildResponse(r), err
+	}
+	defer closeBody(r)
+	return BuildResponse(r), nil
+}
+
 func (c *Client4) ListExports(ctx context.Context) ([]string, *Response, error) {
 	r, err := c.DoAPIGet(ctx, c.exportsRoute(), "")
 	if err != nil {
@@ -9334,7 +9353,6 @@ func (c *Client4) AddUserToGroupSyncables(ctx context.Context, userID string) (*
 
 func (c *Client4) CheckCWSConnection(ctx context.Context, userId string) (*Response, error) {
 	r, err := c.DoAPIGet(ctx, c.cloudRoute()+"/healthz", "")
-
 	if err != nil {
 		return BuildResponse(r), err
 	}

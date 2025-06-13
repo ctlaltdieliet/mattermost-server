@@ -2858,11 +2858,11 @@ func (s *RetryLayerChannelStore) Restore(channelID string, timestamp int64) erro
 
 }
 
-func (s *RetryLayerChannelStore) Save(rctx request.CTX, channel *model.Channel, maxChannelsPerTeam int64) (*model.Channel, error) {
+func (s *RetryLayerChannelStore) Save(rctx request.CTX, channel *model.Channel, maxChannelsPerTeam int64, channelOptions ...model.ChannelOption) (*model.Channel, error) {
 
 	tries := 0
 	for {
-		result, err := s.ChannelStore.Save(rctx, channel, maxChannelsPerTeam)
+		result, err := s.ChannelStore.Save(rctx, channel, maxChannelsPerTeam, channelOptions...)
 		if err == nil {
 			return result, nil
 		}
@@ -3656,11 +3656,11 @@ func (s *RetryLayerChannelMemberHistoryStore) PermanentDeleteBatch(endTime int64
 
 }
 
-func (s *RetryLayerChannelMemberHistoryStore) PermanentDeleteBatchForRetentionPolicies(now int64, globalPolicyEndTime int64, limit int64, cursor model.RetentionPolicyCursor) (int64, model.RetentionPolicyCursor, error) {
+func (s *RetryLayerChannelMemberHistoryStore) PermanentDeleteBatchForRetentionPolicies(retentionPolicyBatchConfigs model.RetentionPolicyBatchConfigs, cursor model.RetentionPolicyCursor) (int64, model.RetentionPolicyCursor, error) {
 
 	tries := 0
 	for {
-		result, resultVar1, err := s.ChannelMemberHistoryStore.PermanentDeleteBatchForRetentionPolicies(now, globalPolicyEndTime, limit, cursor)
+		result, resultVar1, err := s.ChannelMemberHistoryStore.PermanentDeleteBatchForRetentionPolicies(retentionPolicyBatchConfigs, cursor)
 		if err == nil {
 			return result, resultVar1, nil
 		}
@@ -5186,11 +5186,11 @@ func (s *RetryLayerGroupStore) ChannelMembersMinusGroupMembers(channelID string,
 
 }
 
-func (s *RetryLayerGroupStore) ChannelMembersToAdd(since int64, channelID *string, includeRemovedMembers bool) ([]*model.UserChannelIDPair, error) {
+func (s *RetryLayerGroupStore) ChannelMembersToAdd(since int64, channelID *string, reAddRemovedMembers bool) ([]*model.UserChannelIDPair, error) {
 
 	tries := 0
 	for {
-		result, err := s.GroupStore.ChannelMembersToAdd(since, channelID, includeRemovedMembers)
+		result, err := s.GroupStore.ChannelMembersToAdd(since, channelID, reAddRemovedMembers)
 		if err == nil {
 			return result, nil
 		}
@@ -6152,11 +6152,11 @@ func (s *RetryLayerGroupStore) TeamMembersMinusGroupMembers(teamID string, group
 
 }
 
-func (s *RetryLayerGroupStore) TeamMembersToAdd(since int64, teamID *string, includeRemovedMembers bool) ([]*model.UserTeamIDPair, error) {
+func (s *RetryLayerGroupStore) TeamMembersToAdd(since int64, teamID *string, reAddRemovedMembers bool) ([]*model.UserTeamIDPair, error) {
 
 	tries := 0
 	for {
-		result, err := s.GroupStore.TeamMembersToAdd(since, teamID, includeRemovedMembers)
+		result, err := s.GroupStore.TeamMembersToAdd(since, teamID, reAddRemovedMembers)
 		if err == nil {
 			return result, nil
 		}
@@ -8360,11 +8360,11 @@ func (s *RetryLayerPostStore) PermanentDeleteBatch(endTime int64, limit int64) (
 
 }
 
-func (s *RetryLayerPostStore) PermanentDeleteBatchForRetentionPolicies(now int64, globalPolicyEndTime int64, limit int64, cursor model.RetentionPolicyCursor) (int64, model.RetentionPolicyCursor, error) {
+func (s *RetryLayerPostStore) PermanentDeleteBatchForRetentionPolicies(retentionPolicyBatchConfigs model.RetentionPolicyBatchConfigs, cursor model.RetentionPolicyCursor) (int64, model.RetentionPolicyCursor, error) {
 
 	tries := 0
 	for {
-		result, resultVar1, err := s.PostStore.PermanentDeleteBatchForRetentionPolicies(now, globalPolicyEndTime, limit, cursor)
+		result, resultVar1, err := s.PostStore.PermanentDeleteBatchForRetentionPolicies(retentionPolicyBatchConfigs, cursor)
 		if err == nil {
 			return result, resultVar1, nil
 		}
@@ -9452,11 +9452,11 @@ func (s *RetryLayerPropertyValueStore) Delete(groupID string, id string) error {
 
 }
 
-func (s *RetryLayerPropertyValueStore) DeleteForField(id string) error {
+func (s *RetryLayerPropertyValueStore) DeleteForField(groupID string, fieldID string) error {
 
 	tries := 0
 	for {
-		err := s.PropertyValueStore.DeleteForField(id)
+		err := s.PropertyValueStore.DeleteForField(groupID, fieldID)
 		if err == nil {
 			return nil
 		}
@@ -9992,6 +9992,27 @@ func (s *RetryLayerRemoteClusterStore) Update(rc *model.RemoteCluster) (*model.R
 		if tries >= 3 {
 			err = errors.Wrap(err, "giving up after 3 consecutive repeatable transaction failures")
 			return result, err
+		}
+		timepkg.Sleep(100 * timepkg.Millisecond)
+	}
+
+}
+
+func (s *RetryLayerRemoteClusterStore) UpdateLastGlobalUserSyncAt(remoteID string, syncAt int64) error {
+
+	tries := 0
+	for {
+		err := s.RemoteClusterStore.UpdateLastGlobalUserSyncAt(remoteID, syncAt)
+		if err == nil {
+			return nil
+		}
+		if !isRepeatableError(err) {
+			return err
+		}
+		tries++
+		if tries >= 3 {
+			err = errors.Wrap(err, "giving up after 3 consecutive repeatable transaction failures")
+			return err
 		}
 		timepkg.Sleep(100 * timepkg.Millisecond)
 	}
@@ -13796,11 +13817,11 @@ func (s *RetryLayerThreadStore) MarkAsRead(userID string, threadID string, times
 
 }
 
-func (s *RetryLayerThreadStore) PermanentDeleteBatchForRetentionPolicies(now int64, globalPolicyEndTime int64, limit int64, cursor model.RetentionPolicyCursor) (int64, model.RetentionPolicyCursor, error) {
+func (s *RetryLayerThreadStore) PermanentDeleteBatchForRetentionPolicies(retentionPolicyBatchConfigs model.RetentionPolicyBatchConfigs, cursor model.RetentionPolicyCursor) (int64, model.RetentionPolicyCursor, error) {
 
 	tries := 0
 	for {
-		result, resultVar1, err := s.ThreadStore.PermanentDeleteBatchForRetentionPolicies(now, globalPolicyEndTime, limit, cursor)
+		result, resultVar1, err := s.ThreadStore.PermanentDeleteBatchForRetentionPolicies(retentionPolicyBatchConfigs, cursor)
 		if err == nil {
 			return result, resultVar1, nil
 		}
@@ -13817,11 +13838,11 @@ func (s *RetryLayerThreadStore) PermanentDeleteBatchForRetentionPolicies(now int
 
 }
 
-func (s *RetryLayerThreadStore) PermanentDeleteBatchThreadMembershipsForRetentionPolicies(now int64, globalPolicyEndTime int64, limit int64, cursor model.RetentionPolicyCursor) (int64, model.RetentionPolicyCursor, error) {
+func (s *RetryLayerThreadStore) PermanentDeleteBatchThreadMembershipsForRetentionPolicies(retentionPolicyBatchConfigs model.RetentionPolicyBatchConfigs, cursor model.RetentionPolicyCursor) (int64, model.RetentionPolicyCursor, error) {
 
 	tries := 0
 	for {
-		result, resultVar1, err := s.ThreadStore.PermanentDeleteBatchThreadMembershipsForRetentionPolicies(now, globalPolicyEndTime, limit, cursor)
+		result, resultVar1, err := s.ThreadStore.PermanentDeleteBatchThreadMembershipsForRetentionPolicies(retentionPolicyBatchConfigs, cursor)
 		if err == nil {
 			return result, resultVar1, nil
 		}
